@@ -248,7 +248,6 @@ function checkValid(target) {
 
 function changePlayer() {
     playerTurn = playerTurn === 'white' ? 'black' : 'white';
-    document.querySelector('.playerTurn').innerHTML = playerTurn;
     reverseIds();
 }
 
