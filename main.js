@@ -77,6 +77,7 @@ function dragDrop(e) {
         if (taken && valid) {
             e.target.parentNode.append(draggedPiece);
             e.target.remove();
+            Win();
             changePlayer();
             return;
         }
@@ -85,6 +86,7 @@ function dragDrop(e) {
         }
         if (valid) {
             e.target.append(draggedPiece);
+            Win();
             changePlayer();
             return;
         }
@@ -256,4 +258,11 @@ function reverseIds() {
     squares.forEach(square => {
         square.setAttribute('square-id', 63 - square.getAttribute('square-id'));
     });
+}
+function Win() {
+    const kings= Array.from(document.querySelectorAll('#king'));
+    console.log(kings);
+    if (kings.length < 2) {
+        alert('Game Over');
+    };
 }
