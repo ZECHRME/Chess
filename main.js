@@ -30,6 +30,9 @@ function createBoard() {
         square.innerHTML = piece;
         square.firstChild?.setAttribute('draggable', true);
         square.setAttribute('square-id', i);
+
+        
+
         let row = Math.floor((63 - i) / WIDTH) + 1;
         if (row % 2 == 0) {
             square.classList.add(i % 2 == 0 ? 'colwhite' : 'colblack');
@@ -47,11 +50,16 @@ function createBoard() {
 createBoard();
 const diagonalOffsets = [7, 9, -7, -9, 14, 18, -14, -18, 21, 27, -21, -27, 35, 45, -35, -45, 49, 63, -49, -63];
 
-let startPositonId = null;
+let startPositionId = null;
 let endPositionId = null;
 let draggedPiece = null;
 
 const squares = document.querySelectorAll('.square');
+
+squares.forEach(square => {
+    square.addEventListener('click', squareClicked);
+});
+
 
 squares.forEach(square => {
     square.addEventListener('dragstart', dragStart);
@@ -60,7 +68,7 @@ squares.forEach(square => {
 });
 
 function dragStart(e) {
-    startPositonId = e.target.parentNode.getAttribute('square-id');
+    startPositionId = e.target.parentNode.getAttribute('square-id');
     draggedPiece = e.target;
 }
 
@@ -94,14 +102,45 @@ function dragDrop(e) {
     }
 }
 
+function squareClicked(e) {
+    const clickedSquare = e.target;
+    
+    if (startPositionId === null) {
+        if (!clickedSquare.firstChild) {
+            return; // No piece to move
+        }
+        const pieceColor = clickedSquare.firstChild?.firstChild?.classList?.contains('black') ? 'black' : 'white';
+        if (pieceColor !== playerTurn) {
+            return; // Not the correct player's turn
+        }
+        startPositionId = clickedSquare.getAttribute('square-id');
+        draggedPiece = clickedSquare.firstChild;
+    } else {
+        endPositionId = clickedSquare.getAttribute('square-id');
+        const targetSquare = document.querySelector(`[square-id="${endPositionId}"]`);
+        if (targetSquare && checkValid(targetSquare)) {
+            targetSquare.innerHTML = draggedPiece.outerHTML;
+            draggedPiece.remove();
+            Win();
+            changePlayer();
+        }
+        startPositionId = null;
+        endPositionId = null;
+        draggedPiece = null;
+    }
+}
+
 function checkValid(target) {
-    const targetId = Number(target.parentNode.getAttribute('square-id') || target.getAttribute('square-id'));
-    const startId = Number(startPositonId);
+    const targetId = Number(target.parentNode?.getAttribute('square-id') || target.getAttribute('square-id'));
+    const startId = Number(startPositionId);
     const piece = draggedPiece.id;
     console.log(piece,startId,targetId);
     const horizontalOffsets = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8];
     const verticalOffsets = [8, -8, 16, -16, 24, -24, 32, -32, 40, -40, 48, -48, 56, -56, 64, -64];
     const Offset = targetId - startId;
+    
+
+
 
     switch (piece) {
         case 'king':
@@ -259,6 +298,7 @@ function reverseIds() {
         square.setAttribute('square-id', 63 - square.getAttribute('square-id'));
     });
 }
+
 function Win() {
     const kings= Array.from(document.querySelectorAll('#king'));
     console.log(kings);
